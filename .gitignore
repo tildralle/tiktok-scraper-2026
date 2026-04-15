@@ -1,0 +1,9 @@
+.venv/
+data/
+page_source/
+video_links/
+error.log
+scrape_posts_with_requests.py
+testing.py
+testing.ipynb
+Webshare 10 proxies.txt
