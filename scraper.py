@@ -145,6 +145,9 @@ async def scrape_tiktok(post_url, proxy, max_comments=20):
         parsed_post_data = dict(items)
 
         total_comments = parsed_post_data["stats"]["commentCount"]
+        if total_comments == 0:
+            parsed_post_data["comments"] = []
+            return parsed_post_data
 
         text = response.text
         
@@ -244,8 +247,8 @@ async def main(post_urls, save_dir, restart=False):
 if __name__ == "__main__":
     test_mode = False
 
-    account = "insidecdu"
-    account_only = True
+    account = "spdbt"
+    account_only = False
 
     if account_only:
         save_dir = f"data/profile_data/"
