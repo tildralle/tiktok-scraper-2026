@@ -125,7 +125,7 @@ def parse_post(response):
     )
     return parsed_post_data
 
-async def scrape_tiktok(post_url, proxy, max_comments=20):
+async def scrape_posts(post_url, proxy, max_comments=20):
     post_id = re.search(r'/video/(\d+)', post_url).group(1)
 
     try:
@@ -236,7 +236,7 @@ async def main(post_urls, save_dir, restart=False):
 
         print("Proxy: ", proxy)
 
-        result = await scrape_tiktok(pu, proxy)
+        result = await scrape_posts(pu, proxy)
         
         if result:
             with open(f"{save_dir}{result["id"]}.json", "w", encoding="utf-8") as f:     
