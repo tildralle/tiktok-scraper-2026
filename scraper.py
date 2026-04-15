@@ -77,15 +77,22 @@ def parse_profile(response):
     profile_data = json.loads(data)["__DEFAULT_SCOPE__"]["webapp.user-detail"]["userInfo"]  
     return profile_data
 
-async def scrape_profile(proxy, account, save_dir):
+async def scrape_profile(proxy, account, save_dir, restart=False):
     """scrape tiktok profile data from its URL"""
+    data_in_save_dir = glob.glob(f"{save_dir}*.json")
+    accounts_already_scraped = [d.split("/")[-1].split(".")[0] for d in data_in_save_dir]
+    if not restart:
+        if account in accounts_already_scraped:
+            print(f"{bcolors.OKCYAN}Account '{account}' already scraped{bcolors.ENDC}")
+            return
+
     client = await create_client(proxy=proxy)
     response = await client.get(f"https://www.tiktok.com/@{account}")
     try:
         profile_data = parse_profile(response)
         with open(f"{save_dir}{account}.json", "w", encoding="utf-8") as f:     
             json.dump(profile_data, f, ensure_ascii=False, indent=4)
-        print(f"{bcolors.OKGREEN}Scraping account successful{bcolors.ENDC}")
+        print(f"{bcolors.OKGREEN}Scraping account '{account}' successful{bcolors.ENDC}")
         await client.aclose()
         return
     except:
@@ -245,26 +252,26 @@ async def main(post_urls, save_dir, restart=False):
         json.dump(failed_posts, f, indent=2)
 
 if __name__ == "__main__":
-    test_mode = False
-
-    account = "spdbt"
+    
+    account = "merzcdu"
     account_only = False
 
-    if account_only:
-        save_dir = f"data/profile_data/"
-        if not os.path.isdir(save_dir):
-            os.mkdir(save_dir)
-        proxy = random.choice(proxies)
-        account_data = asyncio.run(scrape_profile(proxy, account, save_dir))
-    else:
+    save_dir_account = f"data/profile_data/"
+    if not os.path.isdir(save_dir_account):
+        os.mkdir(save_dir_account)
+    proxy = random.choice(proxies)
+    asyncio.run(scrape_profile(proxy, account, save_dir=save_dir_account, restart=False))
+
+    test_mode = False
+    if not account_only:
         if test_mode:
             post_urls = ["https://www.tiktok.com/@insidecdu/photo/7532533692988771606"]
-            save_dir = "data/"
+            save_dir_post = "data/"
         else:
             post_urls = json.load(open(f"video_links/{account}.json", "r"))
 
-            save_dir = f"data/post_data/{account}/"
-            if not os.path.isdir(save_dir):
-                os.mkdir(save_dir)
+            save_dir_post = f"data/post_data/{account}/"
+            if not os.path.isdir(save_dir_post):
+                os.mkdir(save_dir_post)
 
-        asyncio.run(main(post_urls, save_dir=save_dir, restart=False))
+        asyncio.run(main(post_urls, save_dir=save_dir_post, restart=False))
